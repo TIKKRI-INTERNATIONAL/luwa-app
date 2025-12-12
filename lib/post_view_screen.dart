@@ -90,13 +90,13 @@ class PostViewScreen extends StatelessWidget {
             right: 20,
             child: _buildTag('Post'),
           ),
-          Positioned(
+          const Positioned(
             bottom: 10,
             left: 10,
             right: 10,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
+              children: [
                 Icon(Icons.favorite_border, color: Colors.white, size: 30),
                 Icon(Icons.chat_bubble_outline, color: Colors.white, size: 30),
                 Icon(Icons.bookmark_border, color: Colors.white, size: 30),
@@ -115,7 +115,7 @@ class PostViewScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.3), spreadRadius: 1, blurRadius: 5)],
+        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), spreadRadius: 1, blurRadius: 5)],
       ),
       child: Text(
         'story you can say about your post\nwrite a small description make the\nuser interact with',
@@ -126,9 +126,9 @@ class PostViewScreen extends StatelessWidget {
   }
 
   Widget _buildActionIcons() {
-    return Row(
+    return const Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: const [
+      children: [
         Icon(Icons.brightness_4_outlined, size: 40, color: Colors.black),
         Icon(Icons.brightness_4_outlined, size: 40, color: Colors.black),
         Icon(Icons.brightness_4_outlined, size: 40, color: Colors.black),
@@ -160,7 +160,7 @@ class PostViewScreen extends StatelessWidget {
 
   Widget _buildTag(String tag) {
     return CustomPaint(
-      painter: _TagPainter(color: const Color(0xFFD4C2B4)),
+      painter: const _TagPainter(color: Color(0xFFD4C2B4)),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
         child: Text(
@@ -174,7 +174,7 @@ class PostViewScreen extends StatelessWidget {
 
 class _TagPainter extends CustomPainter {
   final Color color;
-  _TagPainter({required this.color});
+  const _TagPainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -13,6 +13,7 @@ import 'package:myapp/signup_screen.dart';
 import 'package:myapp/store_category_screen.dart';
 import 'package:myapp/store_products_screen.dart';
 import 'package:myapp/user_register_screen.dart';
+import 'package:myapp/store_registration_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -97,6 +98,12 @@ final GoRouter _router = GoRouter(
       path: '/post-view',
       builder: (BuildContext context, GoRouterState state) {
         return const PostViewScreen();
+      },
+    ),
+    GoRoute(
+      path: '/store-registration',
+      builder: (BuildContext context, GoRouterState state) {
+        return const StoreRegistrationScreen();
       },
     ),
   ],

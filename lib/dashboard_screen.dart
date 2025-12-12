@@ -21,23 +21,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
+            const DrawerHeader(
+              decoration: BoxDecoration(
                 color: Colors.black,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.white,
                     child: Icon(Icons.person, size: 40, color: Colors.black),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Text(
                     'Welcome User',
-                    style: GoogleFonts.notoSerif(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                     ),
@@ -122,7 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _buildPostCard(
             context,
             'https://images.unsplash.com/photo-1546059593-3a8e1a7e2832?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format=fit&crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             'Title',
             'Product',
           ),
@@ -215,7 +215,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               height: 250,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.black.withValues(alpha: 0.6), Colors.transparent],
+                  colors: [Colors.black.withOpacity(0.6), Colors.transparent],
                   begin: Alignment.topLeft,
                   end: Alignment.center,
                 ),

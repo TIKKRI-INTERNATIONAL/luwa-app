@@ -1,3 +1,10 @@
+plugins {
+    // The Kotlin plugin must be applied before the Android plugin.
+    id("org.jetbrains.kotlin.android") version "1.9.0" apply false
+    id("com.android.application") version "8.2.0" apply false
+    id("dev.flutter.flutter-gradle-plugin") version "1.0.0" apply false
+}
+
 allprojects {
     repositories {
         google()
