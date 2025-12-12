@@ -2,19 +2,101 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: Drawer(
+        backgroundColor: const Color(0xFFEAE8E1),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Colors.black,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person, size: 40, color: Colors.black),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Welcome User',
+                    style: GoogleFonts.notoSerif(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home_outlined),
+              title: Text('Home', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: Text('Profile', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+                context.push('/profile');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_bag_outlined),
+              title: Text('Products', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+                context.push('/product');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.gavel_outlined),
+              title: Text('Auctions', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+                context.push('/auction');
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: Text('Logout', style: GoogleFonts.notoSerif(color: Colors.red)),
+              onTap: () {
+                context.pop();
+                context.go('/');
+              },
+            ),
+          ],
+        ),
+      ),
       backgroundColor: const Color(0xFFEAE8E1),
       appBar: AppBar(
         backgroundColor: const Color(0xFFEAE8E1),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.black, size: 30),
-          onPressed: () {},
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
         ),
         title: _buildStories(),
       ),
@@ -133,7 +215,7 @@ class DashboardScreen extends StatelessWidget {
               height: 250,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                  colors: [Colors.black.withValues(alpha: 0.6), Colors.transparent],
                   begin: Alignment.topLeft,
                   end: Alignment.center,
                 ),

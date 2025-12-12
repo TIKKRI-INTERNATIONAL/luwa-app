@@ -1,10 +1,133 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:myapp/user_register_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:go_router/go_router.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'dart:async';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    FocusScope.of(context).unfocus();
+
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please fill in all fields'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      String baseUrl = 'http://127.0.0.1:8080';
+      if (!kIsWeb && Platform.isAndroid) {
+        baseUrl = 'http://10.0.2.2:8080';
+      }
+
+      debugPrint('Connecting to $baseUrl/api/auth/login');
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text.trim(),
+          'password': _passwordController.text,
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      debugPrint('Response: ${response.statusCode} ${response.body}');
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        // You might want to save the token here if the API returns one
+        // final data = jsonDecode(response.body);
+        // String token = data['token']; 
+        // await saveToken(token);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successful!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        await Future.delayed(const Duration(seconds: 1));
+        if (mounted) {
+          context.go('/home');
+        }
+      } else {
+        String errorMessage = 'Login failed';
+        try {
+          final errorData = jsonDecode(response.body);
+          errorMessage = errorData['message'] ?? errorMessage;
+        } catch (_) {
+          errorMessage = 'Server error: ${response.statusCode}';
+        }
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error during login: $e');
+      if (mounted) {
+        String message = 'Connection error';
+        if (e is TimeoutException) {
+          message = 'Connection timed out';
+        } else if (e is SocketException) {
+          message = 'Cannot connect to server';
+        } else {
+          message = 'Error: $e';
+        }
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,17 +184,17 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
                 // Email field
-                _buildTextField(label: 'Email'),
+                _buildTextField(label: 'Email', controller: _emailController),
                 const SizedBox(height: 20),
                 // Password field
-                _buildTextField(label: 'Password', obscureText: true),
+                _buildTextField(label: 'Password', controller: _passwordController, obscureText: true),
                 const SizedBox(height: 30),
                 // Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: _isLoading ? null : _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
@@ -80,10 +203,19 @@ class LoginScreen extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                       ),
-                      child: Text(
-                        'Log in',
-                        style: GoogleFonts.notoSerif(fontSize: 18),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'Log in',
+                              style: GoogleFonts.notoSerif(fontSize: 18),
+                            ),
                     ),
                     TextButton(
                       onPressed: () {},
@@ -111,10 +243,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const UserRegisterScreen()),
-                        );
+                        context.push('/user-register');
                       },
                       child: Text(
                         'Sign Up',
@@ -144,8 +273,13 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField({required String label, bool obscureText = false}) {
+  Widget _buildTextField({
+    required String label,
+    TextEditingController? controller,
+    bool obscureText = false,
+  }) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       textAlign: TextAlign.center,
       style: GoogleFonts.notoSerif(fontSize: 18),

@@ -117,7 +117,7 @@ class ProductScreen extends StatelessWidget {
             height: 250,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.black.withOpacity(0.4), Colors.transparent],
+                colors: [Colors.black.withValues(alpha: 0.4), Colors.transparent],
                 begin: Alignment.topLeft,
                 end: Alignment.center,
               ),
