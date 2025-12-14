@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -11,6 +15,45 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<dynamic> _stories = [];
+  bool _isLoadingStories = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStories();
+  }
+
+  Future<void> _fetchStories() async {
+    try {
+      String baseUrl = 'http://127.0.0.1:8080';
+      if (!kIsWeb && Platform.isAndroid) {
+        baseUrl = 'http://10.0.2.2:8080';
+      }
+      final response = await http.get(Uri.parse('$baseUrl/api/stores'));
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            _stories = jsonDecode(response.body);
+            _isLoadingStories = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _isLoadingStories = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching stories: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingStories = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +127,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 context.push('/store-registration');
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.add_box_outlined),
+              title: Text('Product Registration', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+                context.push('/product-registration');
+              },
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
@@ -141,22 +192,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildStories() {
-    final stories = [
-      {'image': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 'name': 'Ali', 'live': false},
-      {'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 'name': 'Sara', 'live': true},
-      {'image': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 'name': 'Noor', 'live': false},
-      {'image': 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 'name': 'Huda', 'live': false},
-      {'image': 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 'name': 'Dana', 'live': false},
-      {'image': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 'name': 'Alya', 'live': false},
-    ];
+    if (_isLoadingStories) {
+      return const SizedBox(
+        height: 90,
+        child: Center(child: CircularProgressIndicator(color: Colors.black)),
+      );
+    }
+
+    if (_stories.isEmpty) {
+       return const SizedBox(height: 90);
+    }
 
     return SizedBox(
       height: 90,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: stories.length,
+        itemCount: _stories.length,
         itemBuilder: (context, index) {
-          final story = stories[index];
+          final story = _stories[index];
+          final name = story['storeName'] ?? 'Store';
+          // Use a placeholder image or cycle through some images
+          final imageUrl = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+          
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
@@ -166,27 +223,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundImage: NetworkImage(story['image'] as String),
+                      backgroundImage: NetworkImage(imageUrl),
                     ),
-                    if (story['live'] as bool)
-                      Positioned(
-                        bottom: -5,
-                        left: 15,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: const Color(0xFFEAE8E1), width: 2),
-                          ),
-                          child: const Text('live', style: TextStyle(color: Colors.white, fontSize: 10)),
-                        ),
-                      ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  story['name'] as String,
+                  name,
                   style: GoogleFonts.notoSerif(fontSize: 14, color: Colors.black87),
                 ),
               ],

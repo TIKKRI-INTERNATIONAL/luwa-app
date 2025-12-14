@@ -1,9 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
-class StoreCategoryScreen extends StatelessWidget {
+class StoreCategoryScreen extends StatefulWidget {
   const StoreCategoryScreen({super.key});
+
+  @override
+  State<StoreCategoryScreen> createState() => _StoreCategoryScreenState();
+}
+
+class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
+  List<dynamic> _stores = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStores();
+  }
+
+  Future<void> _fetchStores() async {
+    try {
+      String baseUrl = 'http://127.0.0.1:8080';
+      if (!kIsWeb && Platform.isAndroid) {
+        baseUrl = 'http://10.0.2.2:8080';
+      }
+
+      debugPrint('Fetching stores from $baseUrl/api/stores');
+
+      final response = await http.get(Uri.parse('$baseUrl/api/stores'));
+
+      debugPrint('Response Status: ${response.statusCode}');
+      debugPrint('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _stores = jsonDecode(response.body);
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load stores: ${response.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching stores: $e');
+      setState(() {
+        _errorMessage = 'Error: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +76,30 @@ class StoreCategoryScreen extends StatelessWidget {
         title: _buildHeader(),
         centerTitle: true,
       ),
-      body: _buildCategoryList(),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: Colors.black))
+          : _errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _isLoading = true;
+                            _errorMessage = null;
+                          });
+                          _fetchStores();
+                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                        child: const Text('Retry', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                )
+              : _buildStoreList(),
     );
   }
 
@@ -60,54 +136,57 @@ class StoreCategoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryList() {
-    final categories = [
-      {'name': 'Cloth Store', 'image': 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-      {'name': 'Watches Store', 'image': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-      {'name': 'Bags Store', 'image': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-      {'name': 'Accessories Store', 'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-      {'name': 'Light Store', 'image': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-      {'name': 'Abaya Store', 'image': 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-      {'name': 'Fantasy Store', 'image': 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-      {'name': 'Mesbah Store', 'image': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-      {'name': 'Music Store', 'image': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
-    ];
+  Widget _buildStoreList() {
+    if (_stores.isEmpty) {
+      return Center(
+        child: Text(
+          'No stores found',
+          style: GoogleFonts.notoSerif(fontSize: 18, color: Colors.black54),
+        ),
+      );
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.only(top: 20),
-      itemCount: categories.length,
+      itemCount: _stores.length,
       itemBuilder: (context, index) {
-        final category = categories[index];
+        final store = _stores[index];
+        final storeName = store['storeName'] ?? 'Unknown Store';
+        // Use a placeholder image if the API doesn't provide one, or cycle through some images
+        final imageUrl = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: Row(
             children: [
               CircleAvatar(
                 radius: 35,
-                backgroundImage: NetworkImage(category['image'] as String),
+                backgroundImage: NetworkImage(imageUrl),
                 backgroundColor: Colors.grey[200],
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    final categoryName = category['name'] as String;
-                    context.go('/store-products/$categoryName');
+                    // Navigate to store products or details
+                    context.go('/store-products/$storeName');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF8B7355),
                     elevation: 2,
-                    shadowColor: Colors.black26,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(30),
+                      side: const BorderSide(color: Color(0xFF8B7355), width: 1),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    textStyle: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.w600),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                   ),
                   child: Text(
-                    category['name'] as String,
+                    storeName,
+                    style: GoogleFonts.notoSerif(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
