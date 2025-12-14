@@ -76,6 +76,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 context.push('/auction');
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.store_mall_directory_outlined),
+              title: Text('Store Registration', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+                context.push('/store-registration');
+              },
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
