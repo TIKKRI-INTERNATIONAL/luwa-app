@@ -16,6 +16,7 @@ import 'package:myapp/store_category_screen.dart';
 import 'package:myapp/store_products_screen.dart';
 import 'package:myapp/user_register_screen.dart';
 import 'package:myapp/store_registration_screen.dart';
+import 'package:myapp/auction_post_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -94,6 +95,12 @@ final GoRouter _router = GoRouter(
       path: '/auction-view',
       builder: (BuildContext context, GoRouterState state) {
         return const AuctionViewScreen();
+      },
+    ),
+    GoRoute(
+      path: '/auction-post',
+      builder: (BuildContext context, GoRouterState state) {
+        return const AuctionPostScreen();
       },
     ),
     GoRoute(

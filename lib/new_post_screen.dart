@@ -1,10 +1,29 @@
-
+import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
-class NewPostScreen extends StatelessWidget {
+class NewPostScreen extends StatefulWidget {
   const NewPostScreen({super.key});
+
+  @override
+  State<NewPostScreen> createState() => _NewPostScreenState();
+}
+
+class _NewPostScreenState extends State<NewPostScreen> {
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +42,7 @@ class NewPostScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () {
-                  // Handle image upload
-                },
+                onTap: _pickImage,
                 child: DottedBorder(
                   borderType: BorderType.RRect,
                   radius: const Radius.circular(30),
@@ -38,15 +55,23 @@ class NewPostScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(30.0),
+                      image: _image != null
+                          ? DecorationImage(
+                              image: FileImage(_image!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.cloud_upload_outlined, size: 50, color: Colors.black54),
-                        SizedBox(height: 10),
-                        Text('Upload Image', style: TextStyle(color: Colors.black54)),
-                      ],
-                    ),
+                    child: _image == null
+                        ? const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.cloud_upload_outlined, size: 50, color: Colors.black54),
+                              SizedBox(height: 10),
+                              Text('Upload Image', style: TextStyle(color: Colors.black54)),
+                            ],
+                          )
+                        : null,
                   ),
                 ),
               ),
@@ -54,7 +79,9 @@ class NewPostScreen extends StatelessWidget {
               _buildTextField("Description", maxLines: 5),
               const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Handle post submission
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   shape: RoundedRectangleBorder(

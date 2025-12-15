@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -96,14 +95,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 context.pop();
               },
             ),
-             ListTile(
-              leading: const Icon(Icons.add_circle_outline),
-              title: Text('New Post', style: GoogleFonts.notoSerif()),
-              onTap: () {
-                context.pop();
-                context.push('/new-post');
-              },
-            ),
             ListTile(
               leading: const Icon(Icons.person_outline),
               title: Text('Profile', style: GoogleFonts.notoSerif()),
@@ -142,6 +133,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onTap: () {
                 context.pop();
                 context.push('/product-registration');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.post_add_outlined),
+              title: Text('Auction Registration', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+                context.push('/auction-post');
               },
             ),
             const Divider(),
@@ -196,12 +195,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/new-post'),
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _buildBottomNavBar(context),
     );
   }
