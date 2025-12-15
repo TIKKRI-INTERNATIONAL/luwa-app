@@ -77,6 +77,13 @@ class _AuctionCategoryScreenState extends State<AuctionCategoryScreen> {
         centerTitle: true,
         toolbarHeight: 100,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.push('/auction-post');
+        },
+        backgroundColor: Colors.black,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.black))
           : _errorMessage != null
