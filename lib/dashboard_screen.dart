@@ -212,7 +212,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final story = _stories[index];
           final name = story['storeName'] ?? 'Store';
           // Use a placeholder image or cycle through some images
-          final imageUrl = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+          const imageUrl = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
           
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
