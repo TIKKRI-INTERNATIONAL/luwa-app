@@ -161,7 +161,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
             children: [
               CircleAvatar(
                 radius: 35,
-                backgroundImage: NetworkImage(imageUrl),
+                backgroundImage: const NetworkImage(imageUrl),
                 backgroundColor: Colors.grey[200],
               ),
               const SizedBox(width: 16),

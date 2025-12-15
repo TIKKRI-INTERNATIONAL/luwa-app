@@ -4,6 +4,7 @@ import 'package:myapp/auction_category_screen.dart';
 import 'package:myapp/auction_view_screen.dart';
 import 'package:myapp/dashboard_screen.dart';
 import 'package:myapp/login_screen.dart';
+import 'package:myapp/new_post_screen.dart';
 import 'package:myapp/otp_screen.dart';
 import 'package:myapp/post_view_screen.dart';
 import 'package:myapp/product_registration_screen.dart';
@@ -111,6 +112,12 @@ final GoRouter _router = GoRouter(
       path: '/product-registration',
       builder: (BuildContext context, GoRouterState state) {
         return const ProductRegistrationScreen();
+      },
+    ),
+    GoRoute(
+      path: '/new-post',
+      builder: (BuildContext context, GoRouterState state) {
+        return const NewPostScreen();
       },
     ),
   ],

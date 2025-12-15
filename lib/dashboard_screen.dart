@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -95,6 +96,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 context.pop();
               },
             ),
+             ListTile(
+              leading: const Icon(Icons.add_circle_outline),
+              title: Text('New Post', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+                context.push('/new-post');
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.person_outline),
               title: Text('Profile', style: GoogleFonts.notoSerif()),
@@ -187,6 +196,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/new-post'),
+        backgroundColor: Colors.black,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _buildBottomNavBar(context),
     );
   }
@@ -218,7 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
               children: [
-                Stack(
+                const Stack(
                   clipBehavior: Clip.none,
                   children: [
                     CircleAvatar(
