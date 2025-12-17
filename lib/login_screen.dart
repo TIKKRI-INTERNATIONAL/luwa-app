@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -69,10 +70,21 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        // You might want to save the token here if the API returns one
-        // final data = jsonDecode(response.body);
-        // String token = data['token']; 
-        // await saveToken(token);
+        final data = jsonDecode(response.body);
+        String token = data['token'];
+        int userId = data['id'];
+        String userType = data['userType'];
+        String name = data['name'];
+        String email = data['email'];
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        await prefs.setInt('user_id', userId);
+        await prefs.setString('user_type', userType);
+        await prefs.setString('user_name', name);
+        await prefs.setString('user_email', email);
+
+        if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

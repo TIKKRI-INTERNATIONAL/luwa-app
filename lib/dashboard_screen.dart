@@ -129,7 +129,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.add_box_outlined),
-              title: Text('Product Registration', style: GoogleFonts.notoSerif()),
+              title:
+                  Text('Product Registration', style: GoogleFonts.notoSerif()),
               onTap: () {
                 context.pop();
                 context.push('/product-registration');
@@ -137,16 +138,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.post_add_outlined),
-              title: Text('Auction Registration', style: GoogleFonts.notoSerif()),
+              title:
+                  Text('Auction Registration', style: GoogleFonts.notoSerif()),
               onTap: () {
                 context.pop();
                 context.push('/auction-post');
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.post_add_outlined),
+              title: Text('New Post', style: GoogleFonts.notoSerif()),
+              onTap: () {
+                context.pop();
+                context.push('/new-post');
+              },
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: Text('Logout', style: GoogleFonts.notoSerif(color: Colors.red)),
+              title: Text('Logout',
+                  style: GoogleFonts.notoSerif(color: Colors.red)),
               onTap: () {
                 context.pop();
                 context.go('/');
@@ -208,7 +219,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     if (_stories.isEmpty) {
-       return const SizedBox(height: 90);
+      return const SizedBox(height: 90);
     }
 
     return SizedBox(
@@ -220,8 +231,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final story = _stories[index];
           final name = story['storeName'] ?? 'Store';
           // Use a placeholder image or cycle through some images
-          const imageUrl = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-          
+          const imageUrl =
+              'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
@@ -238,7 +250,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 8),
                 Text(
                   name,
-                  style: GoogleFonts.notoSerif(fontSize: 14, color: Colors.black87),
+                  style: GoogleFonts.notoSerif(
+                      fontSize: 14, color: Colors.black87),
                 ),
               ],
             ),
@@ -248,7 +261,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildPostCard(BuildContext context, String imageUrl, String avatarUrl, String title, String tag) {
+  Widget _buildPostCard(BuildContext context, String imageUrl, String avatarUrl,
+      String title, String tag) {
     return GestureDetector(
       onTap: () {
         if (tag == 'Product') {
@@ -274,7 +288,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               height: 250,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                  colors: [Colors.black.withValues(alpha: 0.6), Colors.transparent],
                   begin: Alignment.topLeft,
                   end: Alignment.center,
                 ),
