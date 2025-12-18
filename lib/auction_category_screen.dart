@@ -70,6 +70,8 @@ class _AuctionCategoryScreenState extends State<AuctionCategoryScreen> {
           onPressed: () {
             if (context.canPop()) {
               context.pop();
+            } else {
+              context.go('/home');
             }
           },
         ),
@@ -190,8 +192,11 @@ class _AuctionCategoryScreenState extends State<AuctionCategoryScreen> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to details if needed
-                    // context.go('/auction-view');
+                    final storeId = item['id']?.toString();
+                    if (storeId != null) {
+                      // context.push('/auction-list-by-store/$storeId');
+                        GoRouter.of(context).go('/auction-list-by-store/$storeId');
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,

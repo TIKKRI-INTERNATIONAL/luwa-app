@@ -6,126 +6,22 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+class ProductListScreen extends StatefulWidget {
+  const ProductListScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<ProductListScreen> createState() => _ProductListScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _ProductListScreenState extends State<ProductListScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<dynamic> _stories = [];
-  bool _isLoadingStories = true;
-  List<dynamic> _posts = [];
-  bool _isLoadingPosts = true;
-  List<dynamic> _auctions = [];
-  bool _isLoadingAuctions = true;
   List<dynamic> _products = [];
   bool _isLoadingProducts = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchStories();
-    _fetchPosts();
-    _fetchAuctions();
     _fetchProducts();
-  }
-
-  Future<void> _fetchAuctions() async {
-    try {
-      String baseUrl = 'http://127.0.0.1:8080';
-      if (!kIsWeb && Platform.isAndroid) {
-        baseUrl = 'http://10.0.2.2:8080';
-      }
-      final response =
-          await http.get(Uri.parse('$baseUrl/api/auctions/active'));
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            _auctions = jsonDecode(response.body);
-            _isLoadingAuctions = false;
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _isLoadingAuctions = false;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Error fetching auctions: $e');
-      if (mounted) {
-        setState(() {
-          _isLoadingAuctions = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _fetchStories() async {
-    try {
-      String baseUrl = 'http://127.0.0.1:8080';
-      if (!kIsWeb && Platform.isAndroid) {
-        baseUrl = 'http://10.0.2.2:8080';
-      }
-      final response = await http.get(Uri.parse('$baseUrl/api/stores'));
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            _stories = jsonDecode(response.body);
-            _isLoadingStories = false;
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _isLoadingStories = false;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Error fetching stories: $e');
-      if (mounted) {
-        setState(() {
-          _isLoadingStories = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _fetchPosts() async {
-    try {
-      String baseUrl = 'http://127.0.0.1:8080';
-      if (!kIsWeb && Platform.isAndroid) {
-        baseUrl = 'http://10.0.2.2:8080';
-      }
-      final response =
-          await http.get(Uri.parse('$baseUrl/api/storeimageposts'));
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            _posts = jsonDecode(response.body);
-            _isLoadingPosts = false;
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _isLoadingPosts = false;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Error fetching posts: $e');
-      if (mounted) {
-        setState(() {
-          _isLoadingPosts = false;
-        });
-      }
-    }
   }
 
   Future<void> _fetchProducts() async {
@@ -134,7 +30,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (!kIsWeb && Platform.isAndroid) {
         baseUrl = 'http://10.0.2.2:8080';
       }
-      final response = await http.get(Uri.parse('$baseUrl/api/products/all'));
+      final response =
+          await http.get(Uri.parse('$baseUrl/api/products/all'));
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
@@ -197,6 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title: Text('Home', style: GoogleFonts.notoSerif()),
               onTap: () {
                 context.pop();
+                context.go('/home');
               },
             ),
             ListTile(
@@ -212,20 +110,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title: Text('Products', style: GoogleFonts.notoSerif()),
               onTap: () {
                 context.pop();
-                context.push('/product-list');
               },
             ),
             ListTile(
               leading: const Icon(Icons.gavel_outlined),
               title: Text('Auctions', style: GoogleFonts.notoSerif()),
-              onTap: () {
-                context.pop();
-                context.push('/auction');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.gavel_outlined),
-              title: Text('Auctions List', style: GoogleFonts.notoSerif()),
               onTap: () {
                 context.pop();
                 context.push('/auction-list');
@@ -288,144 +177,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
-        title: _buildStories(),
+        title: Text('Products', style: GoogleFonts.notoSerif(color: Colors.black, fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          if (_isLoadingPosts)
-            const Center(child: CircularProgressIndicator())
-          else
-            ..._posts.map((post) {
-              // Adjust these fields based on your actual API response structure
-              // https://eu2.contabostorage.com/6c70e9623145473d8a88b08bd2e0f73f:luwaapp/imagepostluwa/imagepost-11765961363258image
-              // String imageUrl = post['imagepath'] != null
-              //     ? 'https://eu2.contabostorage.com/6c70e9623145473d8a88b08bd2e0f73f:luwaapp/imagepostluwa/${post['imagepath']}'
-              //     : 'https://via.placeholder.com/300';
+      body: _isLoadingProducts
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: _products.length,
+              itemBuilder: (context, index) {
+                final product = _products[index];
+                String imageUrl = product['imagePath'] != null
+                    ? 'https://eu2.contabostorage.com/6c70e9623145473d8a88b08bd2e0f73f:luwaapp/product/${product['imagePath']}'
+                    : 'https://images.unsplash.com/photo-1546059593-3a8e1a7e2832?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
-              String imageUrl =
-                  'https://eu2.contabostorage.com/6c70e9623145473d8a88b08bd2e0f73f:luwaapp/imagepostluwa/${post['imagePath']}';
-
-              debugPrint('Image URL: $imageUrl');
-
-              String description = post['description'] ?? 'No Description';
-
-              return Column(
-                children: [
-                  _buildPostCard(
-                    context,
-                    imageUrl,
-                    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                    description,
-                    'Post',
-                    id: post['id']?.toString(),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              );
-            }),
-          if (_isLoadingAuctions)
-            const Center(child: CircularProgressIndicator())
-          else
-            ..._auctions.map((auction) {
-              String imageUrl =
-                  'https://eu2.contabostorage.com/6c70e9623145473d8a88b08bd2e0f73f:luwaapp/actionpost/${auction['imagePath']}';
-
-              // String imageUrl = auction['imagePath'] != null
-              //     ? 'https://eu2.contabostorage.com/6c70e9623145473d8a88b08bd2e0f73f:luwaapp/actionpost/${auction['imagePath']}'
-              //     : 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-
-              return Column(
-                children: [
-                  _buildPostCard(
-                    context,
-                    imageUrl,
-                    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                    auction['title'] ?? 'Auction',
-                    'Auction',
-                    id: auction['id']?.toString(),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              );
-            }),
-          const SizedBox(height: 20),
-          if (_isLoadingProducts)
-            const Center(child: CircularProgressIndicator())
-          else
-            ..._products.map((product) {
-              String imageUrl = product['imagePath'] != null
-                  ? 'https://eu2.contabostorage.com/6c70e9623145473d8a88b08bd2e0f73f:luwaapp/product/${product['imagePath']}'
-                  : 'https://images.unsplash.com/photo-1546059593-3a8e1a7e2832?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-
-              return Column(
-                children: [
-                  _buildPostCard(
-                    context,
-                    imageUrl,
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format=fit&crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                    product['productName'] ?? 'Product',
-                    'Product',
-                    id: product['id']?.toString(),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              );
-            }),
-        ],
-      ),
-      bottomNavigationBar: _buildBottomNavBar(context),
-    );
-  }
-
-  Widget _buildStories() {
-    if (_isLoadingStories) {
-      return const SizedBox(
-        height: 90,
-        child: Center(child: CircularProgressIndicator(color: Colors.black)),
-      );
-    }
-
-    if (_stories.isEmpty) {
-      return const SizedBox(height: 90);
-    }
-
-    return SizedBox(
-      height: 90,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _stories.length,
-        itemBuilder: (context, index) {
-          final story = _stories[index];
-          final name = story['storeName'] ?? 'Store';
-          // Use a placeholder image or cycle through some images
-          const imageUrl =
-              'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              children: [
-                const Stack(
-                  clipBehavior: Clip.none,
+                return Column(
                   children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(imageUrl),
+                    _buildPostCard(
+                      context,
+                      imageUrl,
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format=fit&crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                      product['productName'] ?? 'Product',
+                      'Product',
+                      id: product['id']?.toString(),
                     ),
+                    const SizedBox(height: 20),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  name,
-                  style: GoogleFonts.notoSerif(
-                      fontSize: 14, color: Colors.black87),
-                ),
-              ],
+                );
+              },
             ),
-          );
-        },
-      ),
+      bottomNavigationBar: _buildBottomNavBar(context),
     );
   }
 
@@ -439,20 +220,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             GoRouter.of(context).go('/product/$id');
           } else {
             GoRouter.of(context).go('/product/0');
-          }
-        } else if (tag == 'Post') {
-          if (id != null) {
-            GoRouter.of(context).go('/post-view/$id');
-          } else {
-            // Fallback for static posts or missing ID
-            GoRouter.of(context).go('/post-view/0');
-          }
-        } else if (tag == 'Auction') {
-          if (id != null) {
-            GoRouter.of(context).go('/auction-view/$id');
-          } else {
-            // Fallback for static posts or missing ID
-            GoRouter.of(context).go('/auction-view/0');
           }
         }
       },
@@ -569,7 +336,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return IconButton(
       icon: Icon(icon, color: Colors.black54, size: 30),
       onPressed: () {
-        if (index == 2) {
+        if (index == 0) {
+          GoRouter.of(context).go('/home');
+        } else if (index == 2) {
           GoRouter.of(context).go('/stores');
         } else if (index == 3) {
           GoRouter.of(context).go('/auction');

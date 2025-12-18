@@ -38,7 +38,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    // Use pickMedia to allow selecting both images and videos
+    final XFile? pickedFile = await _picker.pickMedia();
 
     if (pickedFile != null) {
       setState(() {
@@ -128,15 +129,15 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
       // Add storeId to fields as well (both camelCase and snake_case)
       request.fields['storeId'] = finalStoreId;
-      request.fields['store_id'] = finalStoreId;
 
       // Determine content type
+      String extension = _imageFile!.name.split('.').last.toLowerCase();
       MediaType? mediaType;
-      if (_imageFile!.name.toLowerCase().endsWith('.jpg') || 
-          _imageFile!.name.toLowerCase().endsWith('.jpeg')) {
-        mediaType = MediaType('image', 'jpeg');
-      } else if (_imageFile!.name.toLowerCase().endsWith('.png')) {
-        mediaType = MediaType('image', 'png');
+      
+      if (['jpg', 'jpeg', 'png'].contains(extension)) {
+        mediaType = MediaType('image', extension == 'jpg' ? 'jpeg' : extension);
+      } else if (['mp4', 'mov', 'avi'].contains(extension)) {
+        mediaType = MediaType('video', extension == 'mov' ? 'quicktime' : extension);
       }
 
       // Add the image file
@@ -284,7 +285,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
               title: Text('Products', style: GoogleFonts.notoSerif()),
               onTap: () {
                 context.pop();
-                context.push('/product');
+                context.push('/product-list');
               },
             ),
             ListTile(
@@ -292,7 +293,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
               title: Text('Auctions', style: GoogleFonts.notoSerif()),
               onTap: () {
                 context.pop();
-                context.push('/auction');
+                context.push('/auction-list');
               },
             ),
             ListTile(

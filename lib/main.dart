@@ -17,6 +17,9 @@ import 'package:myapp/store_products_screen.dart';
 import 'package:myapp/user_register_screen.dart';
 import 'package:myapp/store_registration_screen.dart';
 import 'package:myapp/auction_post_screen.dart';
+import 'package:myapp/product_list_screen.dart';
+import 'package:myapp/auction_list_screen.dart';
+import 'package:myapp/auction_list_by_store_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -61,9 +64,16 @@ final GoRouter _router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/product',
+      path: '/product-list',
       builder: (BuildContext context, GoRouterState state) {
-        return const ProductScreen();
+        return const ProductListScreen();
+      },
+    ),
+    GoRoute(
+      path: '/product/:id',
+      builder: (BuildContext context, GoRouterState state) {
+        final id = state.pathParameters['id']!;
+        return ProductScreen(id: id);
       },
     ),
     GoRoute(
@@ -86,15 +96,22 @@ final GoRouter _router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/auction-list',
+      builder: (BuildContext context, GoRouterState state) {
+        return const AuctionListScreen();
+      },
+    ),
+    GoRoute(
       path: '/auction',
       builder: (BuildContext context, GoRouterState state) {
         return const AuctionCategoryScreen();
       },
     ),
     GoRoute(
-      path: '/auction-view',
+      path: '/auction-view/:id',
       builder: (BuildContext context, GoRouterState state) {
-        return const AuctionViewScreen();
+        final id = state.pathParameters['id']!;
+        return AuctionViewScreen(id: id);
       },
     ),
     GoRoute(
@@ -104,9 +121,10 @@ final GoRouter _router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/post-view',
+      path: '/post-view/:id',
       builder: (BuildContext context, GoRouterState state) {
-        return const PostViewScreen();
+        final id = state.pathParameters['id']!;
+        return PostViewScreen(id: id);
       },
     ),
     GoRoute(
@@ -125,6 +143,13 @@ final GoRouter _router = GoRouter(
       path: '/new-post',
       builder: (BuildContext context, GoRouterState state) {
         return const NewPostScreen();
+      },
+    ),
+    GoRoute(
+      path: '/auction-list-by-store/:storeId',
+      builder: (BuildContext context, GoRouterState state) {
+        final storeId = state.pathParameters['storeId']!;
+        return AuctionListByStoreScreen(storeId: storeId);
       },
     ),
   ],

@@ -1,11 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
-class PostViewScreen extends StatelessWidget {
-  const PostViewScreen({super.key});
+class PostViewScreen extends StatefulWidget {
+  final String id;
+  const PostViewScreen({super.key, required this.id});
+
+  @override
+  State<PostViewScreen> createState() => _PostViewScreenState();
+}
+
+class _PostViewScreenState extends State<PostViewScreen> {
+  Map<String, dynamic>? _postData;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPostDetails();
+  }
+
+  Future<void> _fetchPostDetails() async {
+    try {
+      String baseUrl = 'http://127.0.0.1:8080';
+      if (!kIsWeb && Platform.isAndroid) {
+        baseUrl = 'http://10.0.2.2:8080';
+      }
+      final response = await http.get(Uri.parse('$baseUrl/api/storeimageposts/${widget.id}'));
+      
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            _postData = jsonDecode(response.body);
+            _isLoading = false;
+          });
+        }
+      } else {
+        debugPrint('Failed to load post: ${response.statusCode}');
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching post details: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Viewing Post ID: ${widget.id}');
     return Scaffold(
       backgroundColor: const Color(0xFFEAE8E1),
       appBar: AppBar(
@@ -15,24 +68,34 @@ class PostViewScreen extends StatelessWidget {
         title: _buildProfileHeader(),
         actions: const [Icon(Icons.email_outlined, color: Colors.black, size: 30), SizedBox(width: 16)],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildPostCard(),
-            const SizedBox(height: 20),
-            _buildDescriptionBox(),
-            const SizedBox(height: 20),
-            _buildActionIcons(),
-          ],
-        ),
-      ),
+      body: _isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : _postData == null 
+              ? const Center(child: Text('Post not found'))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildPostCard(),
+                      const SizedBox(height: 20),
+                      _buildDescriptionBox(),
+                      const SizedBox(height: 20),
+                      _buildActionIcons(),
+                    ],
+                  ),
+                ),
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
   Widget _buildProfileHeader() {
+    if (_postData == null) {
+      return const SizedBox.shrink();
+    }
+    
+    final storeName = _postData!['store'] != null ? _postData!['store']['storeName'] : 'Unknown Store';
+    final storeEmail = _postData!['store'] != null ? _postData!['store']['email'] : 'Unknown Store';
     return Row(
       children: [
         const CircleAvatar(
@@ -43,13 +106,13 @@ class PostViewScreen extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Ali', style: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
-            Text('Bio Owner of Aldanah Auction', style: GoogleFonts.lora(fontSize: 12, color: Colors.black54)),
+            Text(storeName ?? 'Unknown Store', style: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+            Text(storeEmail ?? 'Unknown Store', style: GoogleFonts.lora(fontSize: 12, color: Colors.black54)),
             Row(
               children: [
                 const Icon(Icons.public, size: 14, color: Colors.black54),
                 const SizedBox(width: 4),
-                Text('Boxbee.com/Test', style: GoogleFonts.lora(fontSize: 12, color: Colors.black54)),
+                Text('Boxbee.com/', style: GoogleFonts.lora(fontSize: 12, color: Colors.black54)),
               ],
             ),
           ],
@@ -68,6 +131,14 @@ class PostViewScreen extends StatelessWidget {
   }
 
   Widget _buildPostCard() {
+    // Handle both camelCase and lowercase keys for image path
+    final imagePath = _postData?['imagepath'] ?? _postData?['imagePath'];
+      final storeName = _postData!['store'] != null ? _postData!['store']['storeName'] : 'Unknown Store';
+   
+    String imageUrl = imagePath != null
+        ? 'https://eu2.contabostorage.com/6c70e9623145473d8a88b08bd2e0f73f:luwaapp/imagepostluwa/$imagePath'
+        : 'https://via.placeholder.com/300';
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 5,
@@ -75,15 +146,22 @@ class PostViewScreen extends StatelessWidget {
       child: Stack(
         children: [
           Image.network(
-            'https://images.unsplash.com/photo-1594223274512-ad4803739b7c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+            imageUrl,
             fit: BoxFit.cover,
             height: 250,
             width: double.infinity,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 250,
+                color: Colors.grey[300],
+                child: const Center(child: Icon(Icons.broken_image)),
+              );
+            },
           ),
           Positioned(
             top: 10,
             left: 10,
-            child: Text('Img/ Video/ life', style: GoogleFonts.lora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(storeName ?? 'Unknown Store', style: GoogleFonts.lora(color: const Color.fromARGB(255, 227, 217, 217), fontSize: 18, fontWeight: FontWeight.bold)),
           ),
           Positioned(
             top: 0,
@@ -110,6 +188,7 @@ class PostViewScreen extends StatelessWidget {
   }
 
   Widget _buildDescriptionBox() {
+    String description = _postData?['description'] ?? 'No description available.';
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -118,7 +197,7 @@ class PostViewScreen extends StatelessWidget {
         boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), spreadRadius: 1, blurRadius: 5)],
       ),
       child: Text(
-        'story you can say about your post\nwrite a small description make the\nuser interact with',
+        description,
         textAlign: TextAlign.center,
         style: GoogleFonts.lora(fontSize: 16, color: Colors.black87, height: 1.5),
       ),
